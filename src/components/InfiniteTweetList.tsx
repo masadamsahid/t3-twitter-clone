@@ -18,12 +18,12 @@ type Tweet = {
 type InfiniteTweetListProps = {
   isLoading?: boolean;
   isError?: boolean;
-  hasMore: boolean;
+  hasMore?: boolean;
   fetchNewTweets: () => Promise<unknown>;
-  tweets: Tweet[];
+  tweets?: Tweet[];
 }
 
-const InfiniteTweetList = ({ isLoading, isError, hasMore, fetchNewTweets, tweets }: InfiniteTweetListProps) => {
+const InfiniteTweetList = ({ isLoading, isError, hasMore=false, fetchNewTweets, tweets }: InfiniteTweetListProps) => {
   
   if (isLoading) return <h1>Loading...</h1>;
   if (isError) return <h1>Error...</h1>;
