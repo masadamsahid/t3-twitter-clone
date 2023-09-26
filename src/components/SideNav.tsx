@@ -1,9 +1,10 @@
 import React from 'react';
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
+import IconHoverEffect from "~/components/IconHoverEffect";
+import { VscAccount, VscHome, VscSignIn, VscSignOut } from "react-icons/vsc";
 
 const SideNav = () => {
-  
   const session = useSession();
   const user = session.data?.user;
   
@@ -12,27 +13,54 @@ const SideNav = () => {
       <ul className="flex flex-col items-start gap-2 whitespace-nowrap">
         <li>
           <Link href='/'>
-            Home
+            <IconHoverEffect>
+              <span className="flex items-center gap-4">
+                <VscHome className="h-8 w-8"/>
+                <span className="hidden text-lg md:inline">
+                  Home
+                </span>
+              </span>
+            </IconHoverEffect>
           </Link>
         </li>
         {(user != null) && (
           <li>
             <Link href={`/profiles/${user.id}`}>
-              Profile
+            <IconHoverEffect>
+              <span className="flex items-center gap-4">
+                <VscAccount className="h-8 w-8"/>
+                <span className="hidden text-lg md:inline">
+                  Profile
+                </span>
+              </span>
+            </IconHoverEffect>
             </Link>
           </li>
         )}
         {(user == null) ? (
           <li>
             <button onClick={() => void signIn()}>
-              Log In
+              <IconHoverEffect>
+              <span className="flex items-center gap-4">
+                <VscSignIn className="h-8 w-8 fill-green-700"/>
+                <span className="hidden text-lg md:inline text-green-700">
+                  Log In
+                </span>
+              </span>
+              </IconHoverEffect>
             </button>
           </li>
         ) : (
-          
           <li>
             <button onClick={() => void signOut()}>
-              Log Out
+              <IconHoverEffect>
+              <span className="flex items-center gap-4">
+                <VscSignOut className="h-8 w-8 fill-red-700"/>
+                <span className="hidden text-lg md:inline text-red-700">
+                  Log Out
+                </span>
+              </span>
+              </IconHoverEffect>
             </button>
           </li>
         )}
