@@ -26,6 +26,7 @@ import { db } from "~/server/db";
 
 interface CreateContextOptions {
   session: Session | null;
+  revalidateSSG: null | ((urlPath: string, opts?: {unstable_onlyGenerated?: boolean}) => Promise<void>)
 }
 
 /**
@@ -41,6 +42,7 @@ interface CreateContextOptions {
 export const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
+    revalidateSSG: opts.revalidateSSG,
     db,
   };
 };
@@ -59,6 +61,7 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
 
   return createInnerTRPCContext({
     session,
+    revalidateSSG: res.revalidate,
   });
 };
 
