@@ -14,9 +14,28 @@ import { useSession } from "next-auth/react";
 const ProfilePage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = (
   { id, trpcState }
 ) => {
+  const trpcUtils = api.useContext();
+  
   const { data: profile } = api.profile.getById.useQuery({ id });
   const tweets = api.tweet.infiniteProfileFeed.useInfiniteQuery({ userId: id }, {
     getNextPageParam: (lastPage) => lastPage.nextCursor,
+  });
+  
+  
+  const toggleFollow = api.profile.toggleFollow.useMutation({
+    onSuccess: ({ addedFollow }) => {
+      trpcUtils.profile.getById.setData({ id }, (oldData) => {
+        if (oldData == null) return;
+        
+        const countModifier = addedFollow ? 1 : -1;
+        
+        return {
+          ...oldData,
+          isFollowing: addedFollow,
+          followersCount: oldData.followsCount + countModifier,
+        };
+      });
+    },
   });
   
   if (profile == null) return <ErrorPage statusCode={404} />;
@@ -43,7 +62,12 @@ const ProfilePage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = (
             {profile.followsCount} Following
           </div>
         </div>
-        <FollowButton isFollowing={profile.isFollowing} userId={id} onClick={() => null} />
+        <FollowButton
+          userId={id}
+          isFollowing={profile.isFollowing}
+          isLoading={toggleFollow.isLoading}
+          onClick={() => toggleFollow.mutate({ userId: id })}
+        />
       </header>
       <main>
         <InfiniteTweetList
@@ -61,16 +85,17 @@ const ProfilePage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = (
 type FollowButtonProps = {
   userId: string;
   isFollowing: boolean;
+  isLoading: boolean;
   onClick: () => void;
 }
 
-const FollowButton = ({ userId, isFollowing, onClick }: FollowButtonProps) => {
+const FollowButton = ({ userId, isFollowing, isLoading, onClick }: FollowButtonProps) => {
   const session = useSession();
   
   if (session.status !== "authenticated" || session.data.user.id === userId) return null;
   
   return (
-    <Button onClick={onClick} small gray={isFollowing}>
+    <Button disabled={isLoading} onClick={onClick} small gray={isFollowing}>
       {isFollowing ? "Unfollow" : "Follow"}
     </Button>
   );
